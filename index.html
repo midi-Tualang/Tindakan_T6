@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misi Situasi: Uji Minda Anda!</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --success: #10B981;
+            --danger: #EF4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .instructions {
+            background-color: #EEF2FF;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: #E5E7EB;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Question Area */
+        .question-box {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 2px dashed #D1D5DB;
+            border-radius: 8px;
+            background-color: #FAFAFA;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #D1D5DB;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: vertical;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .word-count {
+            text-align: right;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-top: 5px;
+            color: var(--text-muted);
+        }
+
+        .word-count.over-limit {
+            color: var(--danger);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: #9CA3AF;
+            cursor: not-allowed;
+        }
+
+        /* Results Area */
+        #results-area {
+            display: none;
+        }
+
+        .result-card {
+            background-color: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-card h3 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .answer-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .student-answer, .suggested-answer {
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .student-answer {
+            background-color: #FEF2F2;
+            border: 1px solid #FCA5A5;
+        }
+
+        .suggested-answer {
+            background-color: #ECFDF5;
+            border: 1px solid #6EE7B7;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .badge-student { background-color: #FEE2E2; color: #991B1B; }
+        .badge-suggested { background-color: #D1FAE5; color: #065F46; }
+
+        @media (max-width: 600px) {
+            .answer-compare {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎮 Misi Situasi</h1>
+    
+    <div id="game-area">
+        <div class="instructions">
+            <strong>Arahan:</strong> Baca dan fahami situasi di bawah. Kemudian, berikan pendapat anda. 
+            <br>⚠️ <em>Panjangnya jawapan anda hendaklah tidak lebih daripada 30 patah perkataan.</em>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <h3 id="question-number">Situasi 1 / 3</h3>
+        <div class="question-box" id="question-text">
+            Pemuatan soalan...
+        </div>
+
+        <textarea id="answer-input" placeholder="Taip jawapan anda di sini..."></textarea>
+        <div class="word-count" id="word-count">0 / 30 perkataan</div>
+
+        <button id="submit-btn" disabled onclick="submitAnswer()">Seterusnya 🚀</button>
+    </div>
+
+    <div id="results-area">
+        <h1>🎉 Tahniah! Misi Selesai</h1>
+        <p style="text-align: center; margin-bottom: 30px;">Sila semak jawapan anda dan bandingkan dengan cadangan jawapan pakar di bawah.</p>
+        <div id="results-container"></div>
+        <button onclick="location.reload()">Main Semula 🔄</button>
+    </div>
+</div>
+
+<script>
+    // Data Soalan dan Cadangan Jawapan
+    const questions = [
+        {
+            situation: "Mateen baru sahaja pulang dari sekolah. Kemudian, dia ternampak kain jemuran jirannya berada di luar rumah dan pada waktu itu jirannya tiada di rumah. Cuaca pula menunjukkan tanda-tanda hendak hujan.<br><br>Sebagai jiran yang prihatin, apakah tindakan yang patut dilakukan oleh Mateen?",
+            suggested: "Mateen patut segera mengangkat kain jemuran jirannya itu dan menyimpannya di tempat yang selamat untuk mengelakkan kain tersebut basah terkena hujan."
+        },
+        {
+            situation: "Sahabat baik kamu menyertai pertandingan syarahan bersempena dengan Minggu Bahasa di sekolah. Dia telah menjadi juara dalam pertandingan tersebut.<br><br>Sebagai seorang sahabat, apakah tindakan kamu apabila mendapat tahu tentang kemenangannya itu?",
+            suggested: "Saya akan mengucapkan tahniah kepadanya atas kejayaan tersebut dan meraikan kemenangannya itu sebagai tanda sokongan dan kebanggaan seorang sahabat."
+        },
+        {
+            situation: "Pada minggu lepas, Amani dan keluarganya pergi ke perpustakaan awam. Dia dan adiknya telah meminjam beberapa buah buku. Namun, apabila tiba masa untuk memulangkan buku, adiknya telah menghilangkan buku tersebut.<br><br>Berdasarkan situasi di atas, apakah tindakan yang perlu dilakukan oleh Amani?",
+            suggested: "Amani perlu segera memaklumkan perkara tersebut kepada pihak perpustakaan, memohon maaf, dan bersedia untuk membayar ganti rugi atas kehilangan buku tersebut."
+        }
+    ];
+
+    let currentIndex = 0;
+    const userAnswers = [];
+
+    // Elemen DOM
+    const questionNumberEl = document.getElementById('question-number');
+    const questionTextEl = document.getElementById('question-text');
+    const answerInputEl = document.getElementById('answer-input');
+    const wordCountEl = document.getElementById('word-count');
+    const submitBtn = document.getElementById('submit-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const gameArea = document.getElementById('game-area');
+    const resultsArea = document.getElementById('results-area');
+    const resultsContainer = document.getElementById('results-container');
+
+    // Audio Context untuk kesan bunyi (tanpa fail luar)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        if (type === 'next') {
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(500, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.2);
+        } else if (type === 'complete') {
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+            oscillator.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
+    }
+
+    function countWords(str) {
+        return str.trim().split(/\s+/).filter(word => word.length > 0).length;
+    }
+
+    function initGame() {
+        loadQuestion();
+        
+        // Event listener untuk pengiraan perkataan
+        answerInputEl.addEventListener('input', () => {
+            const text = answerInputEl.value;
+            const wordCount = countWords(text);
+            
+            wordCountEl.textContent = `${wordCount} / 30 perkataan`;
+            
+            if (wordCount > 30) {
+                wordCountEl.classList.add('over-limit');
+                submitBtn.disabled = true;
+            } else if (wordCount === 0) {
+                wordCountEl.classList.remove('over-limit');
+                submitBtn.disabled = true;
+            } else {
+                wordCountEl.classList.remove('over-limit');
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    function loadQuestion() {
+        const q = questions[currentIndex];
+        questionNumberEl.textContent = `Situasi ${currentIndex + 1} / ${questions.length}`;
+        questionTextEl.innerHTML = q.situation;
+        answerInputEl.value = '';
+        wordCountEl.textContent = `0 / 30 perkataan`;
+        submitBtn.disabled = true;
+        
+        // Kemaskini Progress Bar
+        const progress = (currentIndex / questions.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        
+        // Tukar teks butang jika soalan terakhir
+        if (currentIndex === questions.length - 1) {
+            submitBtn.textContent = "Hantar & Lihat Keputusan 🎯";
+        }
+    }
+
+    function submitAnswer() {
+        const answer = answerInputEl.value.trim();
+        userAnswers.push(answer);
+        
+        if (currentIndex < questions.length - 1) {
+            playSound('next');
+            currentIndex++;
+            loadQuestion();
+        } else {
+            playSound('complete');
+            showResults();
+        }
+    }
+
+    function showResults() {
+        gameArea.style.display = 'none';
+        resultsArea.style.display = 'block';
+        
+        let html = '';
+        questions.forEach((q, index) => {
+            html += `
+                <div class="result-card">
+                    <h3>Situasi ${index + 1}</h3>
+                    <p style="font-size: 0.9em; color: #4B5563;">${q.situation}</p>
+                    <div class="answer-compare">
+                        <div class="student-answer">
+                            <span class="badge badge-student">Jawapan Anda</span>
+                            <p>${userAnswers[index]}</p>
+                            <small>Jumlah: ${countWords(userAnswers[index])} patah perkataan</small>
+                        </div>
+                        <div class="suggested-answer">
+                            <span class="badge badge-suggested">Cadangan Jawapan</span>
+                            <p>${q.suggested}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        resultsContainer.innerHTML = html;
+    }
+
+    // Mulakan permainan apabila laman dimuat
+    window.onload = initGame;
+</script>
+
+</body>
+</html>
